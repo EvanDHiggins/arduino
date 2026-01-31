@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==========================================
-#   ARDUINO PROJECT GENERATOR (MacOS Edition)
+#   ARDUINO PROJECT GENERATOR (Interactive)
 # ==========================================
 # Usage: ./new_project.sh
 
@@ -11,8 +11,6 @@ CURRENT_DIR="$(pwd)"
 
 if [ "$SCRIPT_DIR" != "$CURRENT_DIR" ]; then
     echo "❌ Error: Safety Check Failed."
-    echo "   You are currently in: $CURRENT_DIR"
-    echo "   But the script is in: $SCRIPT_DIR"
     echo "   Please 'cd' into the script directory before running it."
     exit 1
 fi
@@ -30,7 +28,6 @@ fi
 
 TARGET_DIR="$PROJ_ROOT/$PROJ_NAME"
 
-# Check immediately if it exists to fail fast
 if [ -d "$TARGET_DIR" ]; then
     echo "❌ Error: Directory '$TARGET_DIR' already exists."
     exit 1
@@ -38,7 +35,7 @@ fi
 
 # --- 2. Get Board FQBN ---
 echo "----------------------------------------"
-echo "Scanning for connected boards..."
+echo "Scanning for connected boards to help you..."
 echo ""
 arduino-cli board list
 echo ""
@@ -53,17 +50,60 @@ if [ -z "$BOARD_FQBN" ]; then
     BOARD_FQBN="arduino:avr:uno"
 fi
 
-# --- 3. Get Serial Port ---
+# --- 3. Get Serial Port (Numeric Selection) ---
 echo "----------------------------------------"
-echo "Scanning for connected boards..."
-echo ""
-arduino-cli board list
-echo ""
-echo "----------------------------------------"
-read -p "Enter Upload Port (Default: /dev/cu.usbmodem1101): " UPLOAD_PORT
+echo "Select Upload Port:"
+
+# Get list of ports (looking for /dev/ devices)
+# We handle Bash 3.2 (macOS default) compatibility by avoiding 'mapfile'
+PORTS=()
+while IFS= read -r line; do
+    PORTS+=("$line")
+done < <(arduino-cli board list | grep "/dev/" | awk '{print $1}')
+
+# Check if we found any ports
+if [ ${#PORTS[@]} -eq 0 ]; then
+    echo "⚠️  No ports found automatically."
+    echo "   (Make sure your device is plugged in)"
+    echo ""
+    read -p "Enter Port Manually (e.g. /dev/cu.usbmodem1101): " UPLOAD_PORT
+else
+    # Print the menu
+    i=1
+    for port in "${PORTS[@]}"; do
+        echo "  $i) $port"
+        ((i++))
+    done
+    echo "  M) Manual Entry"
+    echo ""
+    read -p "Enter number (Default: 1): " PORT_SELECTION
+
+    # Default to 1 if empty
+    if [ -z "$PORT_SELECTION" ]; then
+        PORT_SELECTION=1
+    fi
+
+    if [[ "$PORT_SELECTION" =~ ^[0-9]+$ ]] && [ "$PORT_SELECTION" -le "${#PORTS[@]}" ] && [ "$PORT_SELECTION" -gt 0 ]; then
+        # Array index is selection - 1
+        INDEX=$((PORT_SELECTION-1))
+        UPLOAD_PORT="${PORTS[$INDEX]}"
+        
+        # --- MAC SPECIFIC FIX ---
+        # If the user selected a /dev/tty port, switch it to /dev/cu to avoid ser_open errors
+        if [[ "$UPLOAD_PORT" == /dev/tty.* ]]; then
+            CU_PORT="${UPLOAD_PORT/tty/cu}"
+            echo "ℹ️  Auto-fixing port for macOS upload..."
+            echo "   Changed $UPLOAD_PORT -> $CU_PORT"
+            UPLOAD_PORT="$CU_PORT"
+        fi
+    else
+        read -p "Enter Port Manually: " UPLOAD_PORT
+    fi
+fi
 
 if [ -z "$UPLOAD_PORT" ]; then
-    UPLOAD_PORT="/dev/cu.usbmodem1101"
+    echo "❌ Error: Port cannot be empty."
+    exit 1
 fi
 
 # --- 4. Summary & Confirmation ---
