@@ -10,6 +10,14 @@ public:
 
   int get();
 
+  bool high() {
+    return this->get() == HIGH;
+  }
+
+  bool low() {
+    return this->get() == LOW;
+  }
+
   int changedState();
 
 private:
