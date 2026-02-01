@@ -1,5 +1,5 @@
-#include <eh_common/eh_common.h>
 #include <Arduino.h>
+#include <Common/Initializable.h>
 
 class Button : Initializable {
 public:
