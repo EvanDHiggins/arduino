@@ -1,6 +1,7 @@
 # ==========================================
 #   MASTER ARDUINO MONOREPO MAKEFILE
 # ==========================================
+#
 
 # --- Directory Paths ---
 PROJ_DIR  := proj
@@ -32,6 +33,19 @@ define check_sketch
         exit 1; \
     fi
 endef
+
+# Pick a main project to serve as the context for library editing
+CONTEXT_SKETCH ?= proj/Libraries
+
+compile_commands:
+	arduino-cli compile \
+		--fqbn $(BOARD) \
+		--only-compilation-database $(CONTEXT_SKETCH) \
+		--build-path ./build
+	# arduino-cli outputs the file inside the project dir; move it to the root
+	mv ./build/compile_commands.json .
+	# Optional: Sed command to fix relative paths if necessary, 
+	# but usually clangd handles the defaults well.
 
 # ==========================================
 #   MAIN TARGETS
