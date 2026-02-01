@@ -40,7 +40,7 @@ CONTEXT_SKETCH ?= proj/Libraries
 compile_commands:
 	arduino-cli compile \
 		--fqbn $(BOARD) \
-		--libraries ./lib \
+		--libraries $(LIB_DIR) \
 		--only-compilation-database $(CONTEXT_SKETCH) \
 		--build-path ./build
 	# arduino-cli outputs the file inside the project dir; move it to the root
@@ -70,7 +70,7 @@ help:
 
 # --- 1. COMPILE ---
 .PHONY: compile
-compile:
+compile: clangd
 	$(call check_sketch)
 	@echo "🔨 Compiling project: $(s)..."
 	@echo "   Board: $(BOARD)"
@@ -102,6 +102,14 @@ monitor:
 clean:
 	@echo "🧹 Removing build artifacts..."
 	rm -rf $(BUILD_DIR)
+
+# This target finds all subdirectories in 'lib/' and generates a .clangd file
+.PHONY: clangd # Technically this is a file but we just generate it every time
+clangd:
+	@echo "Generating .clangd config..."
+	@echo "CompileFlags:" > .clangd
+	@echo "  Add:" >> .clangd
+	@find lib -type d -mindepth 1 -maxdepth 1 -exec echo "    - -I{}" \; >> .clangd
 
 # ==========================================
 #   SHORTCUTS
