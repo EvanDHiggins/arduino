@@ -40,6 +40,7 @@ CONTEXT_SKETCH ?= proj/Libraries
 compile_commands:
 	arduino-cli compile \
 		--fqbn $(BOARD) \
+		--libraries ./lib \
 		--only-compilation-database $(CONTEXT_SKETCH) \
 		--build-path ./build
 	# arduino-cli outputs the file inside the project dir; move it to the root

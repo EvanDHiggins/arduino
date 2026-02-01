@@ -1,0 +1,6 @@
+# Let's us point LSP auto completion towards our libraries.
+# Imports need to be rooted at lib/, though:
+#   Instead of <Button.h> import <Button/Button.h>.
+CompileFlags:
+  Add: 
+    - "-I/Users/evanhiggins/proj/arduino/lib" 

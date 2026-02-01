@@ -1,4 +1,6 @@
-#include <Button.h>
+#include "Arduino.h"
+#include "HardwareSerial.h"
+#include <Button/Button.h>
 
 uint8_t LED_PIN = 6;
 uint8_t BUTTON_PIN = 5;
