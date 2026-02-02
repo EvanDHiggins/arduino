@@ -1,5 +1,7 @@
+#pragma once
+
 #include <Arduino.h>
-#include <Common/Initializable.h>
+#include <Initializable.h>
 
 class Button : Initializable {
 public:
