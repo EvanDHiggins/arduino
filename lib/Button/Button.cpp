@@ -13,7 +13,6 @@ int Button::changedState() {
   int newState = getStateDebounced();
   if (newState != _lastButtonState) {
     _lastButtonState = newState;
-    Serial.println("Returning new button state: " + newState);
     return newState;
   }
 

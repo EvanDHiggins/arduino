@@ -1,3 +1,5 @@
+#pragma once
+
 #include <RTClib.h>
 #include <Initializable.h>
 

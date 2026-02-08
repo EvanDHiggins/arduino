@@ -34,8 +34,8 @@ void SevenSegmentClock::write_time(DateTime time) {
     _display.writeDigitNum(3, minute >= 10 ? digit(minute, 1) : 0);
 
     _display.writeDigitNum(4, digit(minute, 0));
-
     _display.drawColon(true);
+
     _display.writeDisplay();
   }
 }
@@ -43,10 +43,11 @@ void SevenSegmentClock::write_time(DateTime time) {
 // Returns true if the display should show, otherwise false.
 bool SevenSegmentClock::flash_state() {
   if (!_flash) return true;
-  if (_flash_timer.triggered()) {
-    Serial.print("Flash timer triggered! ms = ");
-    Serial.println(millis());
-    _flash_timer.reset();
+  if (_displayOn && _flash_on_timer.triggered()) {
+    _flash_off_timer.reset();
+    _displayOn = !_displayOn;
+  } else if(!_displayOn && _flash_off_timer.triggered()) {
+    _flash_on_timer.reset();
     _displayOn = !_displayOn;
   }
   return _displayOn;
