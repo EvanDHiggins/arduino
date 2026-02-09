@@ -42,6 +42,7 @@ compile_commands:
 		--fqbn $(BOARD) \
 		--libraries $(LIB_DIR) \
 		--only-compilation-database $(CONTEXT_SKETCH) \
+		--build-property "compiler.cpp.extra_flags=-std=c++17" \
 		--build-path ./build
 	# arduino-cli outputs the file inside the project dir; move it to the root
 	mv ./build/compile_commands.json .
@@ -78,6 +79,7 @@ compile: clangd
 	arduino-cli compile \
 		--fqbn $(BOARD) \
 		--libraries $(LIB_DIR) \
+		--build-property "compiler.cpp.extra_flags=-std=c++17" \
 		--output-dir $(BUILD_DIR)/$(s) \
 		$(PROJ_DIR)/$(s)
 

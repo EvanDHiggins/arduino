@@ -4,8 +4,15 @@
 #include <Rtc.h>
 #include <SevenSegmentClock.h>
 
+struct SunriseAlarmConfig {
+  unsigned long display_flash_on_duration_ms = 750;
+  unsigned long display_flash_off_duration_ms = 750;
+};
+
 class SunriseAlarm : Initializable {
 public:
+  SunriseAlarm(SunriseAlarmConfig config);
+
   void init() override;
 
   void update();

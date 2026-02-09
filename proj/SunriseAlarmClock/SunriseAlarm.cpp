@@ -1,4 +1,13 @@
 #include "SunriseAlarm.h"
+
+SunriseAlarm::SunriseAlarm(SunriseAlarmConfig config)
+  : _display(
+      _timer_source,
+      config.display_flash_on_duration_ms,
+      config.display_flash_off_duration_ms
+    )
+{}
+
 void SunriseAlarm::init() {
   Serial.begin(9600);
 
