@@ -1,10 +1,24 @@
 #include "SunriseAlarm.h"
 
 SunriseAlarm::SunriseAlarm(SunriseAlarmConfig config)
-  : _display(
+  :
+#ifdef DEBUG
+     _debug(config.debug),
+    _alarm_debug_led(LED_PIN),
+#endif
+    _display(
       _timer_source,
       config.display_flash_on_duration_ms,
       config.display_flash_off_duration_ms
+    ),
+    _alarm_timer(
+#ifdef DEBUG
+  _timer_source.one_shot(
+    _debug.force_sound_alarm_ms,
+    !bool(_debug.force_sound_alarm_ms))
+#else
+      _timer_source.disabled_one_shot()
+#endif
     )
 {}
 
@@ -21,6 +35,9 @@ void SunriseAlarm::init() {
 
 void SunriseAlarm::update() {
   _timer_source.update();
+#ifdef DEBUG
+  _alarm_debug_led.update();
+#endif
 
   if (_alarm_set_button.high()) {
     handle_alarm_set();
@@ -32,9 +49,15 @@ void SunriseAlarm::update() {
     _display.write_time(_rtc.now());
   }
 
-  //if (_should_sound_alarm()) {
-   // digitalWrite(LED_PIN, HIGH);
-  //}
+  if (should_sound_alarm()) {
+  #if DEBUG
+    _alarm_debug_led.on();
+  #endif
+  }
+}
+
+bool SunriseAlarm::should_sound_alarm() {
+  return _alarm_timer.triggered();
 }
 
 void SunriseAlarm::handle_alarm_set() {

@@ -8,7 +8,10 @@
 
 SunriseAlarm sunrise_alarm({
     .display_flash_on_duration_ms = 750,
-    .display_flash_off_duration_ms = 250,
+    .display_flash_off_duration_ms = 350,
+    .debug = Debug{
+      .force_sound_alarm_ms = 10 * 1000 // 100s
+    }
 });
 
 void setup() {

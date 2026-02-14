@@ -3,10 +3,16 @@
 #include <Timers.h>
 #include <Rtc.h>
 #include <SevenSegmentClock.h>
+#include <LED.h>
+
+struct Debug {
+  unsigned long force_sound_alarm_ms = 0;
+};
 
 struct SunriseAlarmConfig {
   unsigned long display_flash_on_duration_ms = 750;
   unsigned long display_flash_off_duration_ms = 750;
+  Debug debug;
 };
 
 class SunriseAlarm : Initializable {
@@ -17,9 +23,14 @@ public:
 
   void update();
 private:
+#ifdef DEBUG
+  Debug _debug;
+  LED _alarm_debug_led;
+#endif
 
   void handle_alarm_set();
   void handle_time_set();
+  bool should_sound_alarm();
 
   const uint8_t INCREMENT_BUTTON_PIN = 5;
   const uint8_t ALARM_SET_BUTTON_PIN = A3;
@@ -37,6 +48,8 @@ private:
   Button _alarm_set_button = Button(ALARM_SET_BUTTON_PIN);
   Button _time_set_button = Button(TIME_SET_BUTTON_PIN);
 
+
   DateTime _alarm_time;
-  OneShotTimer _alarm_timer = _timer_source.one_shot(0, true);
+  OneShotTimer _alarm_timer;
+
 };

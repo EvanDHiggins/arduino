@@ -13,6 +13,10 @@ OneShotTimer TimerSource::one_shot(
   return OneShotTimer(*this, time_ms, start_disabled);
 }
 
+OneShotTimer TimerSource::disabled_one_shot() const {
+  return one_shot(0, true);
+}
+
 
 // ========== OneShotTimer ========== 
 //
@@ -34,6 +38,11 @@ bool OneShotTimer::triggered() {
     return true;
   }
   return false;
+}
+
+unsigned long OneShotTimer::remaining_ms() {
+  if (!active()) return 0;
+  return ((_start_time + _duration_ms) - _source.current_millis());
 }
 
 bool OneShotTimer::active() const {

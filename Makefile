@@ -17,6 +17,15 @@ ifdef s
     -include $(PROJ_DIR)/$(s)/config.mk
 endif
 
+CPP_FLAGS := -std=gnu++17
+
+ifeq ($(DEBUG), 1)
+    CPP_FLAGS += -DDEBUG
+endif
+
+# The $(CPP_FLAGS) expands to a space-separated list: "-std=gnu++17 -DDEBUG -DVERBOSE..."
+BUILD_PROPERTIES = --build-property "compiler.cpp.extra_flags=$(CPP_FLAGS)"
+
 # --- Defaults ---
 # These apply if the project's config.mk doesn't override them.
 BOARD    ?= arduino:avr:uno
@@ -42,7 +51,7 @@ compile_commands:
 		--fqbn $(BOARD) \
 		--libraries $(LIB_DIR) \
 		--only-compilation-database $(CONTEXT_SKETCH) \
-		--build-property "compiler.cpp.extra_flags=-std=c++17" \
+		$(BUILD_PROPERTIES) \
 		--build-path ./build
 	# arduino-cli outputs the file inside the project dir; move it to the root
 	mv ./build/compile_commands.json .
@@ -79,7 +88,7 @@ compile: clangd
 	arduino-cli compile \
 		--fqbn $(BOARD) \
 		--libraries $(LIB_DIR) \
-		--build-property "compiler.cpp.extra_flags=-std=c++17" \
+		$(BUILD_PROPERTIES) \
 		--output-dir $(BUILD_DIR)/$(s) \
 		$(PROJ_DIR)/$(s)
 

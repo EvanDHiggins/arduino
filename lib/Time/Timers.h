@@ -9,6 +9,7 @@ public:
   void update();
 
   OneShotTimer one_shot(unsigned long time_ms, bool start_disabled = false) const;
+  OneShotTimer disabled_one_shot() const;
 
   unsigned long current_millis() const {
     return _millis;
@@ -37,6 +38,10 @@ public:
   bool active() const;
 
   void reset();
+
+  // Returns the number of milliseconds remaining in the timer.
+  // Returns 0 if the timer is inactive.
+  unsigned long remaining_ms();
 
 private:
   const TimerSource& _source;
